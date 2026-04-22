@@ -34,6 +34,7 @@ app.use('/klaviyo', async (req, res) => {
 
 app.post('/anthropic', async (req, res) => {
   try {
+    console.log('Anthropic key present:', !!process.env.ANTHROPIC_API_KEY);
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -44,8 +45,10 @@ app.post('/anthropic', async (req, res) => {
       body: JSON.stringify(req.body)
     });
     const data = await response.json();
+    console.log('Anthropic status:', response.status, JSON.stringify(data).slice(0, 200));
     res.status(response.status).json(data);
   } catch (err) {
+    console.log('Anthropic error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
