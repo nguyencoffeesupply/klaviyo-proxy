@@ -12,15 +12,12 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.get('/klaviyo/*', async (req, res) => {
+app.use('/klaviyo', async (req, res) => {
   const apiKey = req.headers['x-klaviyo-key'];
-  if (!apiKey) {
-    return res.status(401).json({ error: 'Missing x-klaviyo-key header' });
-  }
+  if (!apiKey) return res.status(401).json({ error: 'Missing x-klaviyo-key header' });
 
-  const klaviyoPath = req.params[0];
-  const queryString = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
-  const url = `https://a.klaviyo.com/api/${klaviyoPath}${queryString}`;
+  const path = req.url.replace(/^\//, '');
+  const url = `https://a.klaviyo.com/api/${path}`;
 
   try {
     const response = await fetch(url, {
@@ -30,7 +27,6 @@ app.get('/klaviyo/*', async (req, res) => {
         'accept': 'application/json'
       }
     });
-
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (err) {
@@ -38,6 +34,4 @@ app.get('/klaviyo/*', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Klaviyo proxy running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Proxy running on port ${PORT}`));
